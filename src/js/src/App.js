@@ -1,27 +1,33 @@
 import './App.css';
 import {getAllStudents} from './client';
 import React, { Component } from 'react';
+import { LoadingOutlined } from '@ant-design/icons';
+import Container from './Container';
+import Footer from './Footer';
 import {
   Table,
   Avatar,
   Spin,
+  Modal,
   antIcon
 } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
 
-import Container from './Container';
 const getIndicatorAntIcon = () => <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 class App extends Component{
   
   state = {
     students: [],
-    isFetching: false
+    isFetching: false,
+    isAddStudentModalVisible: false
   }
 
   componentDidMount () {
     this.fetchStudents();
   }
+
+  openAddStudentModal = () => this.setState({isAddStudentModalVisible: true})
+  closeAddStudentModal = () => this.setState({isAddStudentModalVisible: false})
 
   fetchStudents = () => {
     this.setState({
@@ -39,7 +45,7 @@ class App extends Component{
   }
 
   render(){
-    const { students, isFetching } = this.state;
+    const { students, isFetching, isAddStudentModalVisible } = this.state;
 
     if(isFetching){
       return(
@@ -53,11 +59,14 @@ class App extends Component{
           {
             title:'',
             key:'avatar',
-            render: (text, student) =>{
+            render: (text, student) => (
               <Avatar size='large'>
-                {`${student.firstName.charAt(0).toUpperCase()} ${student.lastName.charAt(0).toUpperCase()}`}
+                {`
+                  ${student.firstName.charAt(0).toUpperCase()} 
+                  ${student.lastName.charAt(0).toUpperCase()}
+                `}
               </Avatar>
-            }
+            )
           },
           {
             title: 'Student Id',
@@ -92,8 +101,18 @@ class App extends Component{
             dataSource={students} 
             columns={columns} 
             pagination={false}
-            rowKey='studentId' 
-          />
+            rowKey='studentId'/>
+            <Modal
+              title='Add new student'
+              visible={isAddStudentModalVisible}
+              onOk={this.closeAddStudentModal}
+              onCancel={this.closeAddStudentModal}
+              width={1000}>
+              <h1>Hello Modal with Antd</h1>
+            </Modal>
+            <Footer 
+              numberOfStudents = {students.length}
+              handleAddStudentClickEvent={this.openAddStudentModal}/>
           </Container>
         );
     }
