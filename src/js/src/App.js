@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
 import Container from './Container';
 import Footer from './Footer';
+import AddStudentForm from './forms/AddStudentForm';
 import {
   Table,
   Avatar,
@@ -109,6 +110,7 @@ class App extends Component{
               onCancel={this.closeAddStudentModal}
               width={1000}>
               <h1>Hello Modal with Antd</h1>
+              <AddStudentForm />
             </Modal>
             <Footer 
               numberOfStudents = {students.length}
@@ -121,7 +123,6 @@ class App extends Component{
     <h1> No Students Found</h1>
     );
   }
-
 }
 
 export default App;
