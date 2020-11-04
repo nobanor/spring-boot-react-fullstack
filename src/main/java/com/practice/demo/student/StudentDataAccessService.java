@@ -52,4 +52,8 @@ public class StudentDataAccessService {
             );
         };
     }
+
+    public int insertStudent(UUID newStudentId, Student student) {
+        return 0;
+    }
 }
