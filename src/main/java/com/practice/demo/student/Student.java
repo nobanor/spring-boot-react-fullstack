@@ -1,15 +1,26 @@
 package com.practice.demo.student;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
 
+import javax.validation.constraints.NotBlank;
 import java.util.UUID;
 
 public class Student {
 
+
     private final UUID studentId;
+
+    @NotBlank
     private final String firstName;
+
+    @NotBlank
     private final String lastName;
+
+    @NotBlank
     private final String email;
+
+    @NotNull
     private final Gender gender;
 
     public Student(@JsonProperty("studentId") UUID studentId,

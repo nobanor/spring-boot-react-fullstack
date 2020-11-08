@@ -46,7 +46,7 @@ class App extends Component{
         });
     }))
     .catch(error => {
-      const message = (error.error.message);
+      const message = error.error.message;
       const description = error.error.error;
       errorNotification(message, description);
       this.setState({
@@ -69,7 +69,13 @@ class App extends Component{
           onSuccess={() => {
             this.closeAddStudentModal(); 
             this.fetchStudents();
-            }}/>
+            }}
+            onFailure={(error) => {
+              const message = error.error.message;
+              const description = error.error.httpStatus;
+              errorNotification(message, description);
+            }}
+            />
         </Modal>
         <Footer 
           numberOfStudents = {students.length}
@@ -85,7 +91,7 @@ class App extends Component{
       )
     }
     if(students && students.length){
-      
+
         const columns = [
           {
             title:'',
