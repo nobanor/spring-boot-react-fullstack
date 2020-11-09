@@ -1,10 +1,15 @@
 import './App.css';
-import {getAllStudents} from './client';
-import React, { Component } from 'react';
+import {
+  getAllStudents,
+  updateStudent,
+  deleteStudent
+} from './client';
+import React, { Component, Fragment } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
 import Container from './Container';
 import Footer from './Footer';
 import AddStudentForm from './forms/AddStudentForm';
+import EditStudentForm from './forms/EditStudentForm';
 import {errorNotification} from './Notification';
 import {
   Table,
@@ -12,7 +17,11 @@ import {
   Spin,
   Modal,
   antIcon,
-  Empty
+  Empty,
+  PageHeader,
+  Button,
+  notification,
+  Popconfirm
 } from 'antd';
 
 const getIndicatorAntIcon = () => <LoadingOutlined style={{ fontSize: 24 }} spin />;
@@ -22,7 +31,9 @@ class App extends Component{
   state = {
     students: [],
     isFetching: false,
-    isAddStudentModalVisible: false
+    selectedStudent: {},
+    isAddStudentModalVisible: false,
+    isEditStudentModalVisible: false
   }
 
   componentDidMount () {
@@ -30,7 +41,14 @@ class App extends Component{
   }
 
   openAddStudentModal = () => this.setState({isAddStudentModalVisible: true})
+
   closeAddStudentModal = () => this.setState({isAddStudentModalVisible: false})
+
+  openEditStudentModal = () => this.setState({ isEditStudentModalVisible: true })
+
+  closeEditStudentModal = () => this.setState({ isEditStudentModalVisible: false })
+
+  openNotificationWithIcon = (type, message, description) => notification[type]({message, description});
 
   fetchStudents = () => {
     this.setState({
@@ -55,6 +73,30 @@ class App extends Component{
     });
   }
 
+  editUser = selectedStudent => {
+    this.setState({ selectedStudent });
+    this.openEditStudentModal();
+  }
+
+  updateStudentFormSubmitter = student => {
+    updateStudent(student.studentId, student).then(() => {
+      this.openNotificationWithIcon('success', 'Student updated', `${student.studentId} was updated`);
+      this.closeEditStudentModal();
+      this.fetchStudents();
+    }).catch(err => {
+      console.error(err.error);
+      this.openNotificationWithIcon('error', 'error', `(${err.error.status}) ${err.error.error}`);
+    });
+  }
+
+  deleteStudent = studentId => {
+    deleteStudent(studentId).then(() => {
+      this.openNotificationWithIcon('success', 'Student deleted', `${studentId} was deleted`);
+      this.fetchStudents();
+    }).catch(err => {
+      this.openNotificationWithIcon('error', 'error', `(${err.error.status}) ${err.error.error}`);
+    });
+  }
   render(){
     const { students, isFetching, isAddStudentModalVisible } = this.state;
     const commonElements = () => (
@@ -76,6 +118,19 @@ class App extends Component{
               errorNotification(message, description);
             }}
             />
+        </Modal>
+        <Modal
+          title='Edit'
+          visible={this.state.isEditStudentModalVisible}
+          onOk={this.closeEditStudentModal}
+          onCancel={this.closeEditStudentModal}
+          width={1000}>
+
+          <PageHeader title={`${this.state.selectedStudent.studentId}`}/>
+
+          <EditStudentForm 
+            initialValues={this.state.selectedStudent} 
+            submitter={this.updateStudentFormSubmitter}/>
         </Modal>
         <Footer 
           numberOfStudents = {students.length}
@@ -129,7 +184,24 @@ class App extends Component{
             title: 'Gender',
             dataIndex: 'gender',
             key: 'gender'
+          },
+          {
+            title: 'Action',
+            key: 'action',
+            render: (text, record) => (
+              <Fragment>
+                <Popconfirm
+                    placement='topRight'
+                    title={`Are you sure to delete ${record.studentId}`} 
+                    onConfirm={() => this.deleteStudent(record.studentId)} okText='Yes' cancelText='No'
+                    onCancel={e => e.stopPropagation()}>
+                    <Button type='danger' onClick={(e) => e.stopPropagation()}>Delete</Button>
+                </Popconfirm>
+                <Button style={{marginLeft: '5px'}} type='primary' onClick={() => this.editUser(record)}>Edit</Button>
+              </Fragment>
+            ),
           }
+
         ];
 
         return (
